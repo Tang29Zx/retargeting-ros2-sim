@@ -32,3 +32,7 @@ HybrIK/
 *.npz
 model_files/
 pretrained_models/
+
+# codex
+CONTEXT.md
+TODO.md

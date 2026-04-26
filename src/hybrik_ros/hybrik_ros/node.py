@@ -1,8 +1,8 @@
-from .inferencer import HybrikInferencer
 import cv2
 import rclpy
 from rclpy.node import Node
 from hybrik_msgs.msg import Joint3D, Joints3D
+from .tcp_client import tcp_socket
 
 class hybrik(Node):
     def __init__(self):
@@ -11,29 +11,33 @@ class hybrik(Node):
         self.publisher = self.create_publisher(Joints3D, 'hybrik_pose', 10)
         self.timer = self.create_timer(0.03, self.timer_callback)
         self.cap = cv2.VideoCapture(0)
-        self.infer = HybrikInferencer("/home/tang/robotics")
 
     def _get_joints(self):
         ret, frame = self.cap.read()
         if not ret:
             return None
         
-        pose_output = self.infer.run_model(frame)
-        if pose_output is None:
+        try:
+            joints = tcp_socket(frame)
+            if joints is None:
+                return None
+        except Exception as e:
+            self.get_logger().error(str(e))
             return None
-        return pose_output.pred_xyz_jts_29.reshape(-1, 3).detach().cpu().numpy()
+        
+        return joints
 
     def timer_callback(self):
-        points = self._get_joints()
+        joints = self._get_joints()
 
-        if points is None:
+        if joints is None:
             return
 
         msg = Joints3D()
         msg.header.stamp = self.get_clock().now().to_msg()
         msg.header.frame_id = "camera"
 
-        for p in points:
+        for p in joints:
             joint = Joint3D()
             joint.x = float(p[0])
             joint.y = float(p[1])

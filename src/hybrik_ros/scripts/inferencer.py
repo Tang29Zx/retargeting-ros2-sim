@@ -34,14 +34,15 @@ class HybrikInferencer:
     def _get_cfg_init(self):
         path = os.path.join(
             self.ROOT_DIR, 'repos', 'perception', 
-            'Hybrik', 'configs', '256x192_adam_lr1e-3-hrw48_cam_2x_w_pw3d_3dhp.yaml')
+            'HybrIK', 'configs', '256x192_adam_lr1e-3-hrw48_cam_2x_w_pw3d_3dhp.yaml')
+        print("cfg path:", path, "exists:", os.path.exists(path))
         cfg = update_config(path)
         return cfg
     
     def _get_ckpt_init(self):
         path = os.path.join(
             self.ROOT_DIR, 'repos', 'perception', 
-            'Hybrik', 'pretrained_models', 'hybrik_hrnet.pth')
+            'HybrIK', 'pretrained_models', 'hybrik_hrnet.pth')
         return path
     
     def _model_preprocess_init(self):

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-WORKSPACE_DIR="/home/tang/robotics/workspaces/hybrik-ros2-sim"
+WORKSPACE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SESSION_NAME="hybrik"
 
 if ! command -v tmux >/dev/null 2>&1; then

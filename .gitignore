@@ -36,3 +36,10 @@ pretrained_models/
 # codex
 CONTEXT.md
 TODO.md
+
+# isaac-sim
+scenes/
+*.usd
+
+# references
+references/

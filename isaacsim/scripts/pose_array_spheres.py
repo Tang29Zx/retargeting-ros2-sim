@@ -8,13 +8,14 @@ import rclpy
 from rclpy.node import Node
 
 
-TOPIC_NAME = "/hybrik_pose_points"
+TOPIC_NAME = "/human_pose_points"
 ROOT_PRIM = "/World/ROS_Points"
 JOINT_COUNT = 29
 SPHERE_RADIUS = 0.035
 LINE_WIDTH = 0.018
-SCALE = 2.2
-ANCHOR = Gf.Vec3d(0.0, 0.0, 1.2)
+SCALE = 1.85
+ANCHOR = Gf.Vec3d(0.0, 0.0, 0.95)
+INPUT_IS_WORLD = True
 PRINT_STATS = False
 # To stop this script from Isaac Script Editor, run:
 # isaacsim/scripts/stop_pose_array_spheres.py
@@ -45,6 +46,9 @@ SKELETON_29 = (
 
 
 def hybrik_to_isaac(position):
+    if INPUT_IS_WORLD:
+        return Gf.Vec3d(position.x, position.y, position.z)
+
     return Gf.Vec3d(
         ANCHOR[0] + SCALE * position.x,
         ANCHOR[1] - SCALE * position.z,

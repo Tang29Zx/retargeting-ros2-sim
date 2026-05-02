@@ -4,12 +4,19 @@ from rclpy.node import Node
 from hybrik_msgs.msg import Joint3D, Joints3D
 from .tcp_client import tcp_socket
 
-class hybrik(Node):
+class HybrikNode(Node):
     def __init__(self):
         super().__init__('hybrik')
+
+        self.declare_parameter('output_topic', '/hybrik_pose')
+        self.declare_parameter('timer', 0.03)
+
+        output_topic = self.get_parameter('output_topic').value
+        timer = self.get_parameter('timer').value
+
         self.get_logger().info('hybrik setup')
-        self.publisher = self.create_publisher(Joints3D, 'hybrik_pose', 10)
-        self.timer = self.create_timer(0.03, self.timer_callback)
+        self.publisher = self.create_publisher(Joints3D, output_topic, 10)
+        self.timer = self.create_timer(timer, self.timer_callback)
         self.cap = cv2.VideoCapture(0)
 
     def _get_joints(self):
@@ -50,12 +57,11 @@ class hybrik(Node):
 
 def main():
     rclpy.init()
-    node = hybrik()
+    node = HybrikNode()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
-
 

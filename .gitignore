@@ -37,5 +37,9 @@ pretrained_models/
 CONTEXT.md
 TODO.md
 
-#isaac-sim
+# isaac-sim
 scenes/
+*.usd
+
+# references
+references/

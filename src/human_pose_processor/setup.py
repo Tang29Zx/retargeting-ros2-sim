@@ -25,6 +25,7 @@ setup(
     entry_points={
         'console_scripts': [
             'processor_node = human_pose_processor.processor_node:main',
+            'keypoint_validator = human_pose_processor.keypoint_validator_node:main',
         ],
     },
 )

@@ -11,6 +11,7 @@ fi
 
 pkill -f "ros2 run hybrik_ros hybrik_node" || true
 pkill -f "ros2 run hybrik_pose_bridge pose_array_bridge" || true
+pkill -f "ros2 run human_pose_processor processor_node" || true
 pkill -f hybrik_worker_server.py || true
 tmux kill-session -t "${SESSION_NAME}" 2>/dev/null || true
 
@@ -22,8 +23,11 @@ tmux new-session -d -s "${SESSION_NAME}" -n worker \
 tmux new-window -t "${SESSION_NAME}" -n ros-node \
     "echo '[ros node] waiting for worker'; sleep 4; echo '[ros node] starting'; cd '${WORKSPACE_DIR}' && ./scripts/run_ros_node.sh; exec bash"
 
-tmux new-window -t "${SESSION_NAME}" -n pose-bridge \
-    "echo '[pose bridge] waiting for ROS node'; sleep 6; echo '[pose bridge] starting'; cd '${WORKSPACE_DIR}' && ./scripts/run_pose_bridge.sh; exec bash"
+tmux new-window -t "${SESSION_NAME}" -n human-processor \
+    "echo '[human processor] waiting for ROS node'; sleep 6; echo '[human processor] starting'; cd '${WORKSPACE_DIR}' && ./scripts/run_human_pose_processor.sh; exec bash"
+
+tmux new-window -t "${SESSION_NAME}" -n human-bridge \
+    "echo '[human bridge] waiting for processor'; sleep 8; echo '[human bridge] starting'; cd '${WORKSPACE_DIR}' && ./scripts/run_human_pose_bridge.sh; exec bash"
 
 tmux select-window -t "${SESSION_NAME}:worker"
 

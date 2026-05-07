@@ -7,6 +7,7 @@ import json
 
 HOST = "127.0.0.1"
 PORT = 44444
+ROOT_DIR = "/home/tang/robotics"
 
 def recv_all(sock, n):
     chunks = []
@@ -89,7 +90,7 @@ def handle_client(conn, addr, infer):
     conn.close()
     
 def main():
-    infer = HybrikInferencer("/home/tang/robotics")
+    infer = HybrikInferencer(ROOT_DIR)
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)

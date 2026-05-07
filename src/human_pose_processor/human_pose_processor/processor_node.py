@@ -7,6 +7,8 @@ SCALE = 1.85
 ANCHOR = (0.0, 0.0, 0.95)
 MAX_JUMP = 0.35
 FLITER_ALPHA = 0.35
+ENABLE_MOVING_AVERAGE = False
+MOVING_AVERAGE_WINDOW = 3
 
 class HumanPoseProcessor(Node):
     def __init__(self):
@@ -17,6 +19,7 @@ class HumanPoseProcessor(Node):
         input_topic = self.get_parameter('input_topic').value
         output_topic = self.get_parameter('output_topic').value
 
+        self.joints_history = []
         self.prev_joints_msg = None
         self.subscription = self.create_subscription(
             Joints3D,
@@ -66,6 +69,31 @@ class HumanPoseProcessor(Node):
 
         return joints_msg
 
+    def moving_average(self, joints_msg):
+        self.joints_history.append(joints_msg)
+        if len(self.joints_history) > MOVING_AVERAGE_WINDOW:
+            self.joints_history.pop(0)
+
+        for n in range(0, len(joints_msg.joints)):
+            total_x = 0.0
+            total_y = 0.0
+            total_z = 0.0
+            for j in self.joints_history:
+                total_x += j.joints[n].x
+                total_y += j.joints[n].y
+                total_z += j.joints[n].z
+
+            count = len(self.joints_history)
+            avg_x = total_x / count
+            avg_y = total_y / count
+            avg_z = total_z / count
+
+            joints_msg.joints[n].x = avg_x
+            joints_msg.joints[n].y = avg_y
+            joints_msg.joints[n].z = avg_z
+
+        return joints_msg
+
     def pose_callback(self, msg):
         Joints = msg.joints
 
@@ -89,6 +117,9 @@ class HumanPoseProcessor(Node):
             neomsg = self.max_jump(neomsg)
             neomsg = self.low_pass_fliter(neomsg)
             
+        if ENABLE_MOVING_AVERAGE is True:
+            neomsg = self.moving_average(neomsg)
+        
         self.prev_joints_msg = neomsg
 
         self.publisher.publish(neomsg)

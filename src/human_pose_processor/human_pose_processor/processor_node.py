@@ -5,6 +5,8 @@ from hybrik_msgs.msg import Joints3D, Joint3D
 JOINT_COUNT = 29
 SCALE = 1.85
 ANCHOR = (0.0, 0.0, 0.95)
+MAX_JUMP = 0.35
+FLITER_ALPHA = 0.35
 
 class HumanPoseProcessor(Node):
     def __init__(self):
@@ -15,6 +17,7 @@ class HumanPoseProcessor(Node):
         input_topic = self.get_parameter('input_topic').value
         output_topic = self.get_parameter('output_topic').value
 
+        self.prev_joints_msg = None
         self.subscription = self.create_subscription(
             Joints3D,
             input_topic,
@@ -26,6 +29,42 @@ class HumanPoseProcessor(Node):
             output_topic,
             10,
         )
+
+    def max_jump(self, joints_msg):
+        joints = joints_msg.joints
+        prev_joints = self.prev_joints_msg.joints
+
+        for n in range(0, len(joints)):
+            diffx = joints[n].x - prev_joints[n].x
+            if diffx > MAX_JUMP:
+                joints_msg.joints[n].x = self.prev_joints_msg.joints[n].x + MAX_JUMP
+            elif diffx < -MAX_JUMP:
+                joints_msg.joints[n].x = self.prev_joints_msg.joints[n].x - MAX_JUMP
+
+            diffy = joints[n].y - prev_joints[n].y
+            if diffy > MAX_JUMP:
+                joints_msg.joints[n].y = self.prev_joints_msg.joints[n].y + MAX_JUMP
+            elif diffy < -MAX_JUMP:
+                joints_msg.joints[n].y = self.prev_joints_msg.joints[n].y - MAX_JUMP
+
+            diffz = joints[n].z - prev_joints[n].z
+            if diffz > MAX_JUMP:
+                joints_msg.joints[n].z = self.prev_joints_msg.joints[n].z + MAX_JUMP
+            elif diffz < -MAX_JUMP:
+                joints_msg.joints[n].z = self.prev_joints_msg.joints[n].z - MAX_JUMP
+
+        return joints_msg
+
+    def low_pass_fliter(self, joints_msg):
+        joints = joints_msg.joints
+        prev_joints = self.prev_joints_msg.joints
+        
+        for n in range(0, len(joints)):
+            joints_msg.joints[n].x = FLITER_ALPHA * joints[n].x + (1 - FLITER_ALPHA) * prev_joints[n].x
+            joints_msg.joints[n].y = FLITER_ALPHA * joints[n].y + (1 - FLITER_ALPHA) * prev_joints[n].y
+            joints_msg.joints[n].z = FLITER_ALPHA * joints[n].z + (1 - FLITER_ALPHA) * prev_joints[n].z
+
+        return joints_msg
 
     def pose_callback(self, msg):
         Joints = msg.joints
@@ -46,6 +85,12 @@ class HumanPoseProcessor(Node):
 
             neomsg.joints.append(new_joint)
         
+        if self.prev_joints_msg is not None:
+            neomsg = self.max_jump(neomsg)
+            neomsg = self.low_pass_fliter(neomsg)
+            
+        self.prev_joints_msg = neomsg
+
         self.publisher.publish(neomsg)
 
 def main():
@@ -57,4 +102,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

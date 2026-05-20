@@ -28,8 +28,8 @@ endif()
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Joint3D.msg"
   "msg/Joints3D.msg"
-  "msg/HumanJoint3D.msg"
-  "msg/HumanJoints3D.msg"
+  "msg/HumanJointAngle.msg"
+  "msg/HumanJointsAngels.msg"
   DEPENDENCIES std_msgs
 )
 

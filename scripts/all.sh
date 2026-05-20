@@ -12,6 +12,8 @@ fi
 pkill -f "ros2 run hybrik_ros hybrik_node" || true
 pkill -f "ros2 run hybrik_pose_bridge pose_array_bridge" || true
 pkill -f "ros2 run human_pose_processor processor_node" || true
+pkill -f "ros2 run human_pose_processor keypoint_validator" || true
+pkill -f "ros2 run human_model_fitter fitter_node" || true
 pkill -f hybrik_worker_server.py || true
 tmux kill-session -t "${SESSION_NAME}" 2>/dev/null || true
 
@@ -26,8 +28,14 @@ tmux new-window -t "${SESSION_NAME}" -n ros-node \
 tmux new-window -t "${SESSION_NAME}" -n human-processor \
     "echo '[human processor] waiting for ROS node'; sleep 6; echo '[human processor] starting'; cd '${WORKSPACE_DIR}' && ./scripts/run_human_pose_processor.sh; exec bash"
 
+tmux new-window -t "${SESSION_NAME}" -n keypoint-validator \
+    "echo '[keypoint validator] waiting for processor'; sleep 8; echo '[keypoint validator] starting'; cd '${WORKSPACE_DIR}' && ./scripts/run_keypoint_validator.sh; exec bash"
+
+tmux new-window -t "${SESSION_NAME}" -n model-fitter \
+    "echo '[model fitter] waiting for keypoints'; sleep 10; echo '[model fitter] starting'; cd '${WORKSPACE_DIR}' && bash ./scripts/run_human_model_fitter.sh; exec bash"
+
 tmux new-window -t "${SESSION_NAME}" -n human-bridge \
-    "echo '[human bridge] waiting for processor'; sleep 8; echo '[human bridge] starting'; cd '${WORKSPACE_DIR}' && ./scripts/run_human_pose_bridge.sh; exec bash"
+    "echo '[human bridge] waiting for processor'; sleep 12; echo '[human bridge] starting'; cd '${WORKSPACE_DIR}' && ./scripts/run_human_pose_bridge.sh; exec bash"
 
 tmux select-window -t "${SESSION_NAME}:worker"
 

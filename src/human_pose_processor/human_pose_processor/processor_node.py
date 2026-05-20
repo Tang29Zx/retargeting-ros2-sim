@@ -8,6 +8,8 @@ ANCHOR = (0.0, 0.0, 0.95)
 MAX_JUMP = 0.35
 FLITER_ALPHA = 0.35
 ENABLE_MOVING_AVERAGE = False
+ENABLE_LOW_PASS_FLITER = False
+ENABLE_MAX_JUMP  = False
 MOVING_AVERAGE_WINDOW = 3
 
 class HumanPoseProcessor(Node):
@@ -114,10 +116,12 @@ class HumanPoseProcessor(Node):
             neomsg.joints.append(new_joint)
         
         if self.prev_joints_msg is not None:
-            neomsg = self.max_jump(neomsg)
-            neomsg = self.low_pass_fliter(neomsg)
+            if ENABLE_MAX_JUMP:
+                neomsg = self.max_jump(neomsg)
+            if ENABLE_LOW_PASS_FLITER:
+                neomsg = self.low_pass_fliter(neomsg)
             
-        if ENABLE_MOVING_AVERAGE is True:
+        if ENABLE_MOVING_AVERAGE:
             neomsg = self.moving_average(neomsg)
         
         self.prev_joints_msg = neomsg

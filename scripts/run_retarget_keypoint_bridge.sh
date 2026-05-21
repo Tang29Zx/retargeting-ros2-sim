@@ -8,4 +8,6 @@ source "${WORKSPACE_DIR}/scripts/setup_ros_env.sh"
 setup_ros_env
 set -u
 
-ros2 run human_pose_processor keypoint_validator
+ros2 run hybrik_pose_bridge pose_array_bridge --ros-args \
+    -p input_topic:=/retarget_keypoints \
+    -p output_topic:=/retarget_keypoint_points

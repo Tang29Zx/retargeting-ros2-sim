@@ -1,18 +1,5 @@
 import rclpy
 from rclpy.node import Node
-<<<<<<< HEAD
-from hybrik_msgs import Joints3D, HumanJointAngles
-
-class HumanModelFitter(Node):
-    def __init__(self):
-        super.__init__('human_model_fitter')
-
-        self.declare_parameter('input_topic', '/retarget_key_points')
-        self.declare_parameter('output_topic', '/human_joint_angles')
-
-        input_topic = self.get_parameter('input_topic').value
-        output_topic = self.get_parameter('output_topic').value
-=======
 from hybrik_msgs.msg import Joints3D, HumanJointAngle, HumanJointAngles
 
 from .variables import HumanKeypoints, HumanLength
@@ -50,7 +37,6 @@ class HumanModelFitter(Node):
         self.udeas = None
         self.last_variables = None
         self.last_loss = None
->>>>>>> 86661d60018d83c142dcaa71ce7dc41438f088e7
 
         self.subscription = self.create_subscription(
             Joints3D, input_topic, self.pose_callback, 10
@@ -59,12 +45,6 @@ class HumanModelFitter(Node):
             HumanJointAngles, output_topic, 10
         )
 
-<<<<<<< HEAD
-    def pose_callback(self):
-        pass
-
-
-=======
     def pose_callback(self, msg):
         if self.human_length is None:
             self.collect_length_sample(msg)
@@ -141,7 +121,6 @@ class HumanModelFitter(Node):
             msg.angles.append(angle_msg)
 
         return msg
->>>>>>> 86661d60018d83c142dcaa71ce7dc41438f088e7
 
 def main():
     rclpy.init()
@@ -151,8 +130,4 @@ def main():
     rclpy.shutdown()
 
 if __name__ == "__main__":
-<<<<<<< HEAD
     main()
-=======
-    main()
->>>>>>> 86661d60018d83c142dcaa71ce7dc41438f088e7
